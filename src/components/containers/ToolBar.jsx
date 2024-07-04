@@ -19,14 +19,7 @@ export default function ToolBar({setDrawState}){
             if (i == drawState) continue;
 
             list.children[i].classList.remove('activated-tool')
-
-            list.children[i].addEventListener('mouseover', ()=>{
-                list.children[i].style.backgroundColor = "#e6e6e6";
-            })
-
-            list.children[i].addEventListener('mouseout', ()=>{
-                list.children[i].style.backgroundColor = "transparent";
-            })
+            list.children[i].style.backgroundColor = "transparent";
         }
 
         toolSelected.style.backgroundColor = ColorIndexes[drawState];
