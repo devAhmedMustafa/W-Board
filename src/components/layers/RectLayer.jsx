@@ -143,7 +143,7 @@ export default function RectLayer({layer, idx}){
 
         const ctx = canvas.getContext('2d');
         
-        const rect = new Rectangular({x: 0,y: 0, width: size.w, height: size.h, color: color, radii: [layer.radii], strokeColor: strokeColor, strokeThickness: thickness});
+        const rect = new Rectangular({x: 0,y: 0, width: size.w, height: size.h, color: color, radii: [borderRadius], strokeColor: strokeColor, strokeThickness: thickness});
 
         rect.draw(ctx);
     }
@@ -158,7 +158,6 @@ export default function RectLayer({layer, idx}){
     const radiusSliderRef = useRef()
     useEffect(()=>{
         radiusSliderRef.current?.style.setProperty('--b-radius', `${borderRadius/2}px`)
-        layer.radius = borderRadius*10;
     }, [borderRadius])
 
     return (
