@@ -1,9 +1,7 @@
 import { useRef, useState, useEffect, useContext } from "react";
-import Rectangular from "../../utils/drawObjects/Rectangular";
 import Styles from "../../utils/Styles";
 import DrawTools from "../../utils/DrawTools";
 import { DrawStateContext, LayersContext, SetDrawStateContext, SetLayersContext } from "../../utils/Context";
-import SelectBox from "../over_layers/SelectBox";
 import "@styles/Sliders.css"
 import Brush from "../../utils/drawObjects/Brush";
 
@@ -17,14 +15,18 @@ export default function HandWriteLayer({layer, idx}){
     const canvRef = useRef();
     const optionsRef = useRef();
 
-    const [position, setPosition] = useState(layer.position);
-    const [startPoint, setStartPoint] = useState(layer.startPoint);
-    const [points, setPoints] = useState(layer.points);
-    
-    const [size, setSize] = useState({
-        w: Math.abs(layer.size.w),
-        h: Math.abs(layer.size.h)
+    const [position, setPosition] = useState({
+        x: layer.xo,
+        y: layer.yo,
     });
+    
+    // const [startPoint, setStartPoint] = useState(layer.startPoint);
+    // const [points, setPoints] = useState(layer.points);
+    
+    // const [size, setSize] = useState({
+    //     w: Math.abs(layer.size.w),
+    //     h: Math.abs(layer.size.h)
+    // });
     const [thickness, setThickness] = useState(layer.strokeThickness);
     const [color, setColor] = useState(layer.color);
 
@@ -40,16 +42,16 @@ export default function HandWriteLayer({layer, idx}){
 
         drawRect()
 
-        let layersItems = [...layers];
-        let layerItem = {...layers[idx]};
-        layerItem.position = position;
-        layerItem.size = size;
-        layerItem.strokeThickness = thickness;
-        layerItem.color = color;
+        // let layersItems = [...layers];
+        // let layerItem = {...layers[idx]};
+        // layerItem.position = position;
+        // layerItem.size = size;
+        // layerItem.strokeThickness = thickness;
+        // layerItem.color = color;
 
-        layersItems[idx] = layerItem;
-        setLayers(layersItems);
-    }, [position, size, color, thickness, strokeColor, borderRadius])
+        // layersItems[idx] = layerItem;
+        // setLayers(layersItems);
+    }, [position, color, thickness])
     
     // Update cursor
     useEffect(()=>{
@@ -129,17 +131,19 @@ export default function HandWriteLayer({layer, idx}){
         const canvas = canvRef.current;
         const main = mainRef.current;
         
-        Styles.moveElement(main, position);
+        Styles.moveElement(main, {x:0, y:0});
         
-        canvas.width = size.w;
-        canvas.height = size.h;
+        canvas.width = innerWidth;
+        canvas.height = innerHeight;
         canvas.style.zIndex = 30;
 
         const ctx = canvas.getContext('2d');
         
-        const brush = new Brush({xo: startPoint.x, yo: startPoint.y, thick: thickness, color: color})
+        const brush = new Brush({xo: layer.xo, yo: layer.yo, thick: thickness, color: color})
+        brush.x = layer.x;
+        brush.y = layer.y;
 
-        brush.draw(ctx);
+        brush.drawOnce(ctx);
     }
 
     return (
@@ -158,11 +162,11 @@ export default function HandWriteLayer({layer, idx}){
                             <input id="fill-color" type="color" onChange={(e)=>setColor(e.target.value)}/>
                         </div>
 
-                        <div className="flex gap-3 px-3 items-center border-r-[1px] ">
+                        {/* <div className="flex gap-3 px-3 items-center border-r-[1px] ">
                             <input id="thickness" type="range" min="0" max="20" step="1"
                             onChange={(e)=>setThickness(e.target.value)} value={thickness} ref={strokeSliderRef}/>
                             <label className="thickness-in selection:bg-none" htmlFor="thickness">{thickness}px</label>
-                        </div>
+                        </div> */}
                     </div>
                 </>
             }

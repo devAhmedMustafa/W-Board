@@ -1,9 +1,9 @@
 export default class Brush{
-    constructor({thick, color, xo, yo}){
+    constructor({thick, color}){
         this.thick = thick;
         this.color = color;
-        this.xo = xo;
-        this.yo = yo;
+        this.xo;
+        this.yo;
 
         this.x = [];
         this.y = [];
@@ -15,16 +15,23 @@ export default class Brush{
     }
 
     start(ctx, xo, yo){
+        this.xo = xo;
+        this.yo = yo;
+
         ctx.beginPath();
         ctx.lineWidth = this.thick;
         ctx.strokeStyle = this.color;
         ctx.moveTo(xo, yo);
     }
-    draw(ctx){
+    drawOnce(ctx){
         
         for (let i = 0; i < this.x.length; i++){
             ctx.lineTo(this.x[i], this.y[i]);
         }
+        ctx.stroke();
+    }
+    realTimeDraw(ctx, x, y){
+        ctx.lineTo(x, y);
         ctx.stroke();
     }
 }
