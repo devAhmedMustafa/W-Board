@@ -1,17 +1,13 @@
-import { useRef, useState, useEffect, createElement } from "react";
-import { MathPhy } from "../../utils/MathPhy";
-import Rectangular from "../../utils/drawObjects/Rectangular";
-import RectLayer from "../layers/RectLayer";
+import { useRef, useState, useEffect, createElement, useContext } from "react";
+import { SetLayersContext } from "../../utils/Context";
+import RectData from "../../utils/CanvasData/RectData";
 
 export default function Shapes(){
 
     const toolRef = useRef();
     const frameRef = useRef();
 
-    const [rects, setRects] = useState([]);
-
-    const [thickness, setThickness] = useState(2);
-    const [color, setColor] = useState("#000000");
+    const setLayers = useContext(SetLayersContext);
 
     useEffect(()=>{
 
@@ -129,16 +125,19 @@ export default function Shapes(){
         function HandleMouseUp(){
             isDrawing = false;
             
-            setRects(
-                (rects) => [...rects, 
-                    {
-                        x: Math.min(start.x, mouse.x),
-                        y: Math.min(start.y, mouse.y), 
-                        w: mouse.x-start.x, h: mouse.y-start.y,
-                        r: radius   
-                    }
-                ]
-            )
+            const newRect = new RectData({
+                position:{
+                    x: Math.min(start.x, mouse.x),
+                    y: Math.min(start.y, mouse.y),
+                },
+                size:{
+                    w: mouse.x-start.x,
+                    h: mouse.y-start.y,
+                },
+                radii: radius,
+            })
+
+            setLayers((layers)=> [...layers, newRect])
 
             currentOutline.remove();
             currentOutline = null;
@@ -158,16 +157,6 @@ export default function Shapes(){
 
     return(
         <div ref={frameRef} className="z-20">
-
-            {
-                rects.map((r, i)=> <RectLayer position={{
-                    x: r.x,
-                    y: r.y,
-                }} dimensions={{
-                    w: r.w,
-                    h: r.h,
-                }} radius={r.r} key={i}/>)
-            }
 
             <div ref={toolRef} className="absolute z-20">
                 <i className="fa-solid fa-plus text-2xl font-thin"></i>

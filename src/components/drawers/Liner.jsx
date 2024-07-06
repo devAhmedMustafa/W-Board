@@ -1,8 +1,12 @@
-import { useEffect, useRef, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 import LineLayer from "../layers/LineLayer";
 import Line from "../../utils/drawObjects/Line";
+import { LayersContext, SetDrawStateContext, SetLayersContext } from "../../utils/Context";
+import LineData from "../../utils/CanvasData/LineData";
 
 export default function Liner(){
+
+    const [layers, setLayers] = [useContext(LayersContext), useContext(SetLayersContext)];
 
     const toolRef = useRef()
     const [lines, setLines] = useState([])
@@ -55,18 +59,18 @@ export default function Liner(){
         })
 
         window.addEventListener('mouseup', ()=>{
+
+            const newLine = new LineData(
+                {
+                    xo: start.x, yo: start.y, 
+                    x: mouse.x, y: mouse.y,
+                }
+            )
             
             isDrawing = false;
             ctx.clearRect(0, 0, lineCanvas.width, lineCanvas.height);
             
-            setLines(
-                (lines) => [...lines, 
-                    {
-                        xo: start.x, yo: start.y, 
-                        x: mouse.x, y: mouse.y,
-                    }
-                ]
-            )
+            setLayers((layers) => [...layers, newLine])
 
         });
     }, [])

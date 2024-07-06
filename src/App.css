@@ -1,3 +1,40 @@
+
+
 body{
     overflow: hidden;
+}
+
+input[type="color"]{
+    display: none;
+}
+
+.fill-color-in{
+    width: 25px;
+    height: 25px;
+    border-radius: 100%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid rgb(202, 202, 202);
+}
+
+.stroke-color-in{
+    width: 25px;
+    height: 25px;
+    border-radius: 100%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 5px solid rgb(29, 29, 29);
+}
+
+label{
+    user-select: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -o-user-select: none;
+
 }

@@ -5,8 +5,9 @@ import DrawTools from "../../utils/DrawTools";
 import { DrawStateContext, LayersContext, SetDrawStateContext, SetLayersContext } from "../../utils/Context";
 import SelectBox from "../over_layers/SelectBox";
 import "@styles/Sliders.css"
+import Brush from "../../utils/drawObjects/Brush";
 
-export default function RectLayer({layer, idx}){
+export default function HandWriteLayer({layer, idx}){
 
     const setDrawState = useContext(SetDrawStateContext);
     const drawState = useContext(DrawStateContext);
@@ -17,14 +18,15 @@ export default function RectLayer({layer, idx}){
     const optionsRef = useRef();
 
     const [position, setPosition] = useState(layer.position);
+    const [startPoint, setStartPoint] = useState(layer.startPoint);
+    const [points, setPoints] = useState(layer.points);
+    
     const [size, setSize] = useState({
         w: Math.abs(layer.size.w),
         h: Math.abs(layer.size.h)
     });
     const [thickness, setThickness] = useState(layer.strokeThickness);
     const [color, setColor] = useState(layer.color);
-    const [strokeColor, setStrokeColor] = useState(layer.strokeColor)
-    const [borderRadius, setBorderRadius] = useState(layer.radii);
 
     const [selected, setSelected] = useState(false);
 
@@ -42,10 +44,8 @@ export default function RectLayer({layer, idx}){
         let layerItem = {...layers[idx]};
         layerItem.position = position;
         layerItem.size = size;
-        layerItem.radii = borderRadius;
         layerItem.strokeThickness = thickness;
         layerItem.color = color;
-        layerItem.strokeColor = strokeColor;
 
         layersItems[idx] = layerItem;
         setLayers(layersItems);
@@ -81,11 +81,6 @@ export default function RectLayer({layer, idx}){
                     x: mouse.x + (pos.x - offset.x),
                     y: mouse.y + (pos.y - offset.y)
                 })
-
-                // Styles.moveElement(mainRef.current, {
-                //     x: mouse.x + (pos.x - offset.x),
-                //     y: mouse.y + (pos.y - offset.y)
-                // });
             }
         }
 
@@ -125,7 +120,6 @@ export default function RectLayer({layer, idx}){
             removeEventListener('mousemove', moveCanvas);
             removeEventListener('mousedown', enableDragging)
             removeEventListener('mouseup', disableDraggin)
-
         }
 
     }, [selected])
@@ -143,23 +137,10 @@ export default function RectLayer({layer, idx}){
 
         const ctx = canvas.getContext('2d');
         
-        const rect = new Rectangular({x: 0,y: 0, width: size.w, height: size.h, color: color, radii: [layer.radii], strokeColor: strokeColor, strokeThickness: thickness});
+        const brush = new Brush({xo: startPoint.x, yo: startPoint.y, thick: thickness, color: color})
 
-        rect.draw(ctx);
+        brush.draw(ctx);
     }
-
-    // Stroke Settings
-    const strokeSliderRef = useRef()
-    useEffect(()=>{
-        strokeSliderRef.current?.style.setProperty('--thumb-color', strokeColor)
-    }, [strokeColor])
-
-    // Border Radius Settings
-    const radiusSliderRef = useRef()
-    useEffect(()=>{
-        radiusSliderRef.current?.style.setProperty('--b-radius', `${borderRadius/2}px`)
-        layer.radius = borderRadius*10;
-    }, [borderRadius])
 
     return (
         <div ref={mainRef} className="absolute z-20">
@@ -175,9 +156,6 @@ export default function RectLayer({layer, idx}){
                         <div className="flex gap-2 border-r-[1px] px-3">
                             <label className="fill-color-in" htmlFor="fill-color"></label>
                             <input id="fill-color" type="color" onChange={(e)=>setColor(e.target.value)}/>
-
-                            <label className="stroke-color-in" htmlFor="stroke-color"></label>
-                            <input id="stroke-color" type="color" onChange={(e)=>setStrokeColor(e.target.value)}/>
                         </div>
 
                         <div className="flex gap-3 px-3 items-center border-r-[1px] ">
@@ -185,27 +163,7 @@ export default function RectLayer({layer, idx}){
                             onChange={(e)=>setThickness(e.target.value)} value={thickness} ref={strokeSliderRef}/>
                             <label className="thickness-in selection:bg-none" htmlFor="thickness">{thickness}px</label>
                         </div>
-
-                        <div ref={radiusSliderRef} className="flex gap-3 pl-3 items-center relative">
-                            <input id="radii" type="range" min="0" max="20" step="1"
-                            onChange={(e)=>setBorderRadius(e.target.value)} value={borderRadius} />
-                            <label className="b-radius-in selection:bg-none" htmlFor="radii">{borderRadius}px</label>
-
-                            <div className="w-5 h-5 border-2 border-black border-preview">
-
-                            </div>
-                        </div>
                     </div>
-
-                    <SelectBox aspects={{
-                        w: size.w,
-                        h: size.h,
-                        x: 0,
-                        y: 0,
-                    }}
-                    setPosition={setPosition}
-                    setSize={setSize}
-                    />
                 </>
             }
 

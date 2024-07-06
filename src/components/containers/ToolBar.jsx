@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef } from "react"
 import "./ToolBar.css"
 import { DrawStateContext } from "../../utils/Context"
-import ColorIndexes from "../../utils/ColorIndexes";
+import Colors from "../../utils/ColorIndexes"
 
 export default function ToolBar({setDrawState}){
 
@@ -22,7 +22,7 @@ export default function ToolBar({setDrawState}){
             list.children[i].style.backgroundColor = "transparent";
         }
 
-        toolSelected.style.backgroundColor = ColorIndexes[drawState];
+        toolSelected.style.backgroundColor = Colors.ColorIndexes[drawState];
         toolSelected.classList.add('activated-tool')        
 
     }, [drawState])
@@ -37,12 +37,14 @@ export default function ToolBar({setDrawState}){
     }, [])
 
     return (
-        <div className="fixed px-4 py-2 cursor-default z-[100] bg-white rounded-full w-fit border-2 top-2 right-2">
-            <ul ref={listRef} className="tools-list flex text-xl text-gray-800 gap-4">
+        <div className="flex gap-1 justify-center items-center fixed cursor-default z-[100] top-2 right-2">
+            <ul ref={listRef} className="tools-list flex text-xl bg-white rounded-full w-fit border-2 px-2 py-1 text-gray-800 gap-4">
                 <li><i className="fa-solid fa-arrow-pointer"></i></li>
                 <li><i className="fa-solid fa-pen"></i></li>
                 <li><i className="fa-solid fa-shapes"></i></li>
-                <li><i className="fa-solid fa-arrow-turn-up"></i></li>
+                <li><i className="fa-solid fa-grip-lines-vertical"></i></li>
+                <li><i className="fa-solid fa-trash"></i></li>
+
             </ul>
         </div>
     )

@@ -1,14 +1,37 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useContext } from "react";
 import Line from "../../utils/drawObjects/Line";
+import { SetDrawStateContext, DrawStateContext } from "../../utils/Context";
+import DrawTools from "../../utils/DrawTools";
+import { LayersContext, SetLayersContext } from "../../utils/Context";
+import SelectBox from "../over_layers/SelectBox";
+import Styles from "../../utils/Styles";
 
-export default function LineLayer({start, end}){
+export default function LineLayer({layer, idx}){
 
+    const setDrawState = useContext(SetDrawStateContext);
+    const drawState = useContext(DrawStateContext);
+    const [layers, setLayers] = [useContext(LayersContext), useContext(SetLayersContext)];
+
+    const mainRef = useRef();
     const canvRef = useRef();
+    const optionsRef = useRef();
 
-    const [thickness, setThickness] = useState(2);
-    const [color, setColor] = useState("#000000");
+    const [position, setPosition] = useState(layer.position);
+    
+    const [points, setPoints] = useState({
+        xo: Math.max(0, layer.xo-layer.x),
+        yo: Math.max(0, layer.yo-layer.y),
+        x: Math.max(0, layer.x - layer.xo),
+        y: Math.max(0, layer.y - layer.yo),
+    });
+
+    const [thickness, setThickness] = useState(layer.thick);
+    const [color, setColor] = useState(layer.color);
+
+    const [selected, setSelected] = useState(false);
 
     useEffect(()=>{
+        setDrawState(DrawTools.select)
         drawLine();
     }, [])
 
@@ -16,18 +39,23 @@ export default function LineLayer({start, end}){
 
         const canvas = canvRef.current;
 
-        let width = Math.abs(start.x - end.x);
-        let height = Math.abs(start.y - end.y);
+        let width = Math.abs(points.x - points.xo);
+        let height = Math.abs(points.y - points.yo);
         
-        canvas.style.top = `${start.y-height}px`;
-        canvas.style.left = `${start.x-width}px`;
-        canvas.width = width*2;
-        canvas.height = height*2;
-        canvas.style.zIndex = 10;
+        Styles.moveElement(mainRef.current, position)
+        
+        canvas.width = width;
+        canvas.height = height;
+        canvas.style.zIndex = 30;
 
         const ctx = canvas.getContext('2d');
 
-        const lineDim = {xo: canvas.width/2, yo: canvas.height/2, x: end.x - start.x + width, y: end.y - start.y + height};
+        const lineDim = {
+            xo: points.xo,
+            yo: points.yo,
+            x: points.x,
+            y: points.y,
+        };
         
         const line = new Line({...lineDim, thick: thickness, color: color});
 
@@ -35,9 +63,76 @@ export default function LineLayer({start, end}){
 
     }
 
-    return (
-        <canvas ref={canvRef} className="absolute z-20">
+    useEffect(()=>{
 
-        </canvas>
+        drawLine()
+
+        let layersItems = [...layers];
+        let layerItem = {...layers[idx]};
+        layerItem.xo = points.xo;
+        layerItem.yo = points.yo;
+        layerItem.x = points.x;
+        layerItem.y = points.y;
+        layerItem.thickness = thickness;
+        layerItem.color = color;
+        layerItem.position = position;
+
+        layersItems[idx] = layerItem;
+        setLayers(layersItems);
+    }, [position, points, color, thickness])
+    // Update cursor
+
+    useEffect(()=>{
+        if (drawState == DrawTools.select){
+            Styles.setCursor(canvRef.current, 'move');
+        }
+        else{
+            Styles.setCursor(canvRef.current, 'none');
+        }
+
+    }, [drawState])
+
+    // Stroke Settings
+    const strokeSliderRef = useRef()
+    useEffect(()=>{
+        strokeSliderRef.current?.style.setProperty('--thumb-color', color)
+    }, [color])
+
+    return (
+        <div ref={mainRef} className="absolute z-20">
+
+            <canvas ref={canvRef} onClick={()=> setSelected(true)} className="absolute z-20"></canvas>
+
+            {
+                selected &&
+
+                <>
+                    <div ref={optionsRef} className="flex items-center absolute -top-20 w-fit origin-center z-10 p-4 rounded-md bg-white">
+
+                        <div className="flex gap-2 border-r-[1px] px-3">
+                            <label className="fill-color-in" htmlFor="fill-color"></label>
+                            <input id="fill-color" type="color" onChange={(e)=>setColor(e.target.value)}/>
+                        </div>
+
+                        <div className="flex gap-3 px-3 items-center border-r-[1px] ">
+                            <input id="thickness" type="range" min="0" max="20" step="1"
+                            onChange={(e)=>setThickness(e.target.value)} value={thickness} ref={strokeSliderRef}/>
+                            <label className="thickness-in selection:bg-none" htmlFor="thickness">{thickness}px</label>
+                        </div>
+                    </div>
+
+                    {/* <SelectBox aspects={{
+                        w: endPoint.w,
+                        h: endPoint.h,
+                        x: 0,
+                        y: 0,
+                    }}
+                    setPosition={setPosition}
+                    /> */}
+                </>
+            }
+
+
+        </div>
     )
 }

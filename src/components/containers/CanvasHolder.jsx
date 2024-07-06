@@ -64,7 +64,7 @@ export default function CanvasHolder({children}){
     }, [drawState])
 
     return (
-        <div className="canvas-holder">
+        <div id="main-canva" className="canvas-holder">
             <canvas id="canv" ref={canvasRef} className="bg-neutral-100"></canvas>
             {children}
         </div>
