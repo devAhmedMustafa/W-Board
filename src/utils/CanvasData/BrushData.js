@@ -13,11 +13,22 @@ export default class BrushData{
 
         this.x = [];
         this.y = [];
+
+        this.max;
+        this.min;
     }
 
     addVertex(x, y){
         this.x.push(x);
         this.y.push(y);
+    }
+
+    getMinVertices(){
+        this.min = {x: Math.min(...this.x), y: Math.min(...this.y)};
+    }
+
+    getMaxVertices(){
+        this.max = {x: Math.max(...this.x), y: Math.max(...this.y)};
     }
 
     // draw(ctx){

@@ -73,7 +73,7 @@ export default function LineLayer({layer, idx}){
         layerItem.yo = points.yo;
         layerItem.x = points.x;
         layerItem.y = points.y;
-        layerItem.thickness = thickness;
+        layerItem.thick = thickness;
         layerItem.color = color;
         layerItem.position = position;
 
@@ -97,6 +97,74 @@ export default function LineLayer({layer, idx}){
     useEffect(()=>{
         strokeSliderRef.current?.style.setProperty('--thumb-color', color)
     }, [color])
+
+    // Add Listeners
+    useEffect(()=>{
+
+        let canDrag = false;
+        const offset = {x: undefined, y: undefined}
+        const mouse = {}
+        let pos = Styles.getPosition(mainRef.current);
+
+        const moveCanvas = (e)=>{
+
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+
+            if (canDrag){
+
+                setPosition({
+                    x: mouse.x + (pos.x - offset.x),
+                    y: mouse.y + (pos.y - offset.y)
+                })
+
+                // Styles.moveElement(mainRef.current, {
+                //     x: mouse.x + (pos.x - offset.x),
+                //     y: mouse.y + (pos.y - offset.y)
+                // });
+            }
+        }
+
+        const enableDragging = ()=>{
+            if (!selected) return;
+
+            const pad = {x: 20, y: 20};
+
+            const dimenstions = Styles.getDimensions(canvRef.current);
+            pos = Styles.getPosition(mainRef.current);
+            
+            if (
+                mouse.x > pos.x+pad.x && mouse.x < dimenstions.width + pos.x -pad.x &&
+                mouse.y > pos.y+pad.y && mouse.y < dimenstions.height + pos.y - pad.y
+            ){
+                canDrag = true;
+                offset.x = mouse.x;
+                offset.y = mouse.y;
+            }
+            
+        }
+        const disableDraggin = ()=>{
+            if (!selected) return;
+            canDrag = false;
+        }
+
+        addEventListener('mousemove', moveCanvas);
+        addEventListener('mousedown', enableDragging)
+        addEventListener('mouseup', disableDraggin)
+        addEventListener('click', (e)=>{
+            if (e.target.tagName == 'CANVAS' && e.target != canvRef.current){
+                setSelected(false)
+            }
+        })
+
+        return ()=>{
+            removeEventListener('mousemove', moveCanvas);
+            removeEventListener('mousedown', enableDragging)
+            removeEventListener('mouseup', disableDraggin)
+
+        }
+
+    }, [selected])
 
     return (
         <div ref={mainRef} className="absolute z-20">

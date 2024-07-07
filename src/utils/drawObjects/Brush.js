@@ -1,5 +1,5 @@
 export default class Brush{
-    constructor({thick, color}){
+    constructor({thick, color, shift = {x: 0, y: 0}}){
         this.thick = thick;
         this.color = color;
         this.xo;
@@ -7,6 +7,7 @@ export default class Brush{
 
         this.x = [];
         this.y = [];
+        this.shift = shift;
     }
 
     addVertex(x, y){
@@ -15,18 +16,19 @@ export default class Brush{
     }
 
     start(ctx, xo, yo){
-        this.xo = xo;
-        this.yo = yo;
+
+        this.xo = xo - this.shift.x;
+        this.yo = yo - this.shift.y;
 
         ctx.beginPath();
         ctx.lineWidth = this.thick;
         ctx.strokeStyle = this.color;
-        ctx.moveTo(xo, yo);
+        ctx.moveTo(this.xo, this.yo);
     }
     drawOnce(ctx){
         
         for (let i = 0; i < this.x.length; i++){
-            ctx.lineTo(this.x[i], this.y[i]);
+            ctx.lineTo(this.x[i]-this.shift.x, this.y[i]-this.shift.y);
         }
         ctx.stroke();
     }

@@ -66,6 +66,9 @@ export default function Pen(){
             init = false;
             ctx.clearRect(0, 0, canvas.width, canvas.height)
 
+            brushData.getMinVertices();
+            brushData.getMaxVertices();
+
             setLayers((layers)=> [...layers, brushData]);
 
             console.log(brushData);

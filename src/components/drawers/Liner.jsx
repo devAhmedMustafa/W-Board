@@ -13,7 +13,7 @@ export default function Liner(){
     const [thickness, setThickness] = useState(2);
     const [color, setColor] = useState("#000000");
 
-    const lineCanvasRef = useRef(); 
+    const lineCanvasRef = useRef();
     
     useEffect(()=>{
 
@@ -28,15 +28,14 @@ export default function Liner(){
 
         const ctx = lineCanvas.getContext('2d')
 
-        let line ;
-
-        addEventListener('mousemove', (e)=>{
-            
+        let line;
+        
+        const handleMouseMove = (e)=>{
             mouse.x = e.clientX;
             mouse.y = e.clientY;
             tool.style.left = (mouse.x-10) + 'px';
             tool.style.top = (mouse.y-15) + 'px';
-
+    
             if (isDrawing){
                 if (line){
                     ctx.clearRect(0, 0, lineCanvas.width, lineCanvas.height);
@@ -44,22 +43,18 @@ export default function Liner(){
                 }
                 
             }
-            
-        })
+        }
 
-        window.addEventListener('mousedown', ()=>{
-            
+        const handleMouseDown = ()=>{
             start.x = mouse.x;
             start.y = mouse.y;
             
             isDrawing = true;
             
             line = new Line({xo: start.x, yo: start.y, x: mouse.x, y: mouse.y, thick: thickness, color: color})
+        }
 
-        })
-
-        window.addEventListener('mouseup', ()=>{
-
+        const handleMouseUp = ()=>{
             const newLine = new LineData(
                 {
                     xo: start.x, yo: start.y, 
@@ -71,8 +66,17 @@ export default function Liner(){
             ctx.clearRect(0, 0, lineCanvas.width, lineCanvas.height);
             
             setLayers((layers) => [...layers, newLine])
+        }
 
-        });
+        addEventListener('mousemove', handleMouseMove);
+        addEventListener('mousedown', handleMouseDown)
+        addEventListener('mouseup', handleMouseUp);
+
+        return ()=>{
+            removeEventListener('mousemove', handleMouseMove);
+            removeEventListener('mousedown', handleMouseDown)
+            removeEventListener('mouseup', handleMouseUp);
+        }
     }, [])
 
     return (
